@@ -10,7 +10,7 @@ import queue
 import msvcrt
 
 class SmoothAudioProcessor:
-    def __init__(self, sample_rate=44100, block_size=2048):
+    def __init__(self, sample_rate=44100, block_size=4096):
         self.sample_rate = sample_rate
         self.block_size = block_size
         self.is_running = False
@@ -21,7 +21,7 @@ class SmoothAudioProcessor:
         self.master_volume = 1.0
         
         # Thread-safe queue with larger buffer
-        self.audio_queue = queue.Queue(maxsize=20)
+        self.audio_queue = queue.Queue(maxsize=50)
         
         # Lock for thread-safe parameter updates
         self.param_lock = threading.Lock()
@@ -169,7 +169,7 @@ class SmoothAudioProcessor:
         
         # Pre-fill queue with silence
         silence = np.zeros((self.block_size, 2), dtype=np.float32)
-        for _ in range(10):
+        for _ in range(20):
             self.audio_queue.put(silence)
         
         try:
@@ -205,7 +205,7 @@ class SmoothAudioProcessor:
 
 
 def main():
-    processor = SmoothAudioProcessor(sample_rate=44100, block_size=2048)
+    processor = SmoothAudioProcessor(sample_rate=44100, block_size=4096)
     
     devices = sd.query_devices()
     
